@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es-es">
+<head>
+  <meta charset="utf-8">
+  <title>Agento</title>
+
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, viewport-fit=cover" />
+
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue3-sfc-loader/dist/vue3-sfc-loader.js"></script>
+<script>
+const { createApp } = Vue;
+const { loadModule } = window['vue3-sfc-loader'];
+
+const options = {
+  moduleCache: { vue: Vue },
+  async getFile(url) {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw Object.assign(new Error(`${res.statusText} ${url}`), { res });
+    }
+    return {
+      getContentData: (asBinary) => (asBinary ? res.arrayBuffer() : res.text()),
+    };
+  },
+  addStyle(textContent) {
+    const style = document.createElement('style');
+    style.textContent = textContent;
+    document.head.appendChild(style);
+  },
+};
+
+loadModule('/components/Mic.vue', options).then((Mic) => {
+  createApp(Mic).mount('#app');
+});
+</script>
+</body>
+</html>
