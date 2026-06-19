@@ -66,15 +66,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="micContainer">
-    <button
-      type="button"
-      class="micButton"
-      :class="{ isRecording: isRecording }"
-      @mousedown.prevent="startRecording"
-      @touchstart.prevent="startRecording"
-    >
-      <svg width="36" height="36" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <div class="appShell">
+    <header class="titleBar">Agento</header>
+    <div class="micContainer">
+      <button
+        type="button"
+        class="micButton"
+        :class="{ isRecording: isRecording }"
+        @mousedown.prevent="startRecording"
+        @touchstart.prevent="startRecording"
+      >
+        <svg width="36" height="36" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M13.9997 18.0833C16.578 18.0833 18.6663 15.9949 18.6663 13.4166V6.99992C18.6663 4.42159 16.578 2.33325 13.9997 2.33325C11.4213 2.33325 9.33301 4.42159 9.33301 6.99992V13.4166C9.33301 15.9949 11.4213 18.0833 13.9997 18.0833Z"
         stroke-width="1.41231"
@@ -106,22 +108,51 @@ onMounted(() => {
         stroke-linejoin="round"
       />
       </svg>
-    </button>
+      </button>
+    </div>
   </div>
 </template>
 
 <style>
-.micContainer {
-  align-items: center;
-  background: transparent;
+.appShell {
+  background: #f4f4f5;
+  border: 1px solid #d4d4d8;
   box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+
+.titleBar {
+  -webkit-app-region: drag;
+  app-region: drag;
+  background: #e4e4e7;
+  border-bottom: 1px solid #d4d4d8;
+  box-sizing: border-box;
+  color: #3f3f46;
+  flex: 0 0 28px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 28px;
+  padding: 0 10px;
+  user-select: none;
+}
+
+.micContainer {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
   justify-content: center;
   width: 100%;
 }
 
 .micButton {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
   align-items: center;
   background-color: transparent;
   border: 0;

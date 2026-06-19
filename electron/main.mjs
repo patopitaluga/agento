@@ -7,7 +7,8 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.join(__dirname, '..');
 const SERVER_URL = 'http://127.0.0.1:3001';
-const MIC_SIZE = 56;
+const WINDOW_WIDTH = 160;
+const WINDOW_HEIGHT = 100;
 
 let mainWindow;
 let serverProcess;
@@ -44,17 +45,17 @@ async function waitForServer() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: MIC_SIZE,
-    height: MIC_SIZE,
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
     useContentSize: true,
     frame: false,
-    transparent: true,
+    transparent: false,
     resizable: false,
     maximizable: false,
     minimizable: true,
     fullscreenable: false,
     hasShadow: true,
-    backgroundColor: '#00000000',
+    backgroundColor: '#f4f4f5',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

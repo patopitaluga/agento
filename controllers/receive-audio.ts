@@ -14,16 +14,23 @@ const workspaceDir = path.join(projectRoot, 'generated');
 mkdirSync(uploadsDir, { recursive: true });
 mkdirSync(workspaceDir, { recursive: true });
 
-const AGENT_INSTRUCTIONS = `You are a voice-controlled file assistant. The user speaks commands to create or modify files in the generated/ workspace.
+const AGENT_INSTRUCTIONS = `You are a voice-controlled file assistant. The user speaks commands to create or modify files.
 
 When the user asks to create a file, use write_file with the requested path and content.
 When the user asks to change or update a file, read it first with read_file if needed, then use write_file with the updated content.
 Always perform the requested file operations before replying.
 Confirm what you changed briefly after completing the work.
-Use relative paths under generated/.`;
+Use simple relative paths such as "notes.txt" or "docs/readme.md".`;
+
+function normalizeToolPath(filePath: string): string {
+  let normalized = path.normalize(filePath).replace(/^(\.\.(\/|\\|$))+/, '');
+  normalized = normalized.replace(/^(\.\/|\.\\)?generated(?:\/|\\|$)/i, '');
+
+  return normalized || '.';
+}
 
 function resolveWorkspacePath(filePath: string): string | null {
-  const normalized = path.normalize(filePath).replace(/^(\.\.(\/|\\|$))+/, '');
+  const normalized = normalizeToolPath(filePath);
   const fullPath = path.resolve(workspaceDir, normalized);
 
   if (!fullPath.startsWith(workspaceDir + path.sep) && fullPath !== workspaceDir) {
@@ -35,14 +42,14 @@ function resolveWorkspacePath(filePath: string): string | null {
 
 const readFileTool = tool({
   name: 'read_file',
-  description: 'Read a file from the generated/ directory.',
+  description: 'Read a file by path.',
   parameters: z.object({
-    filePath: z.string().describe('Relative path under generated/, e.g. "notes.txt"'),
+    filePath: z.string().describe('Relative file path, e.g. "notes.txt"'),
   }),
   async execute({ filePath }) {
     const fullPath = resolveWorkspacePath(filePath);
     if (!fullPath) {
-      return 'Error: file path must stay within generated/';
+      return 'Error: invalid file path';
     }
 
     try {
@@ -56,21 +63,22 @@ const readFileTool = tool({
 
 const writeFileTool = tool({
   name: 'write_file',
-  description: 'Create or overwrite a file in the generated/ directory.',
+  description: 'Create or overwrite a file by path.',
   parameters: z.object({
-    filePath: z.string().describe('Relative path under generated/, e.g. "notes.txt"'),
+    filePath: z.string().describe('Relative file path, e.g. "notes.txt"'),
     content: z.string().describe('Full file content to write'),
   }),
   async execute({ filePath, content }) {
     const fullPath = resolveWorkspacePath(filePath);
     if (!fullPath) {
-      return 'Error: file path must stay within generated/';
+      return 'Error: invalid file path';
     }
 
     mkdirSync(path.dirname(fullPath), { recursive: true });
     writeFileSync(fullPath, content, 'utf8');
 
-    return `Wrote ${content.length} bytes to generated/${path.normalize(filePath)}`;
+    const relativePath = path.relative(workspaceDir, fullPath);
+    return `Wrote ${content.length} bytes to ${relativePath}`;
   },
 });
 
@@ -180,12 +188,11 @@ async function processVoiceCommand(pcmBuffer: Buffer): Promise<string> {
 
         await session.connect({ apiKey });
 
-        const arrayBuffer = pcmBuffer.buffer.slice(
-          pcmBuffer.byteOffset,
-          pcmBuffer.byteOffset + pcmBuffer.byteLength,
-        ) as ArrayBuffer;
-
-        session.sendAudio(arrayBuffer, { commit: true });
+        session.transport.sendEvent({
+          type: 'input_audio_buffer.append',
+          audio: pcmBuffer.toString('base64'),
+        });
+        session.transport.sendEvent({ type: 'input_audio_buffer.commit' });
         session.transport.sendEvent({
           type: 'response.create',
           response: { output_modalities: ['text'] },
