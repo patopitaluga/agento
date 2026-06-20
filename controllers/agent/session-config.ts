@@ -1,0 +1,43 @@
+import { RealtimeAgent } from '@openai/agents/realtime';
+import { buildTranscriptionPrompt } from '../../config/dictionary.ts';
+import { buildAgentInstructions } from './instructions.ts';
+import { fileTools } from './tools.ts';
+
+export function createAgent() {
+  return new RealtimeAgent({
+    name: 'File assistant',
+    instructions: buildAgentInstructions(),
+    tools: fileTools,
+  });
+}
+
+export function createSessionConfig() {
+  const transcriptionPrompt = buildTranscriptionPrompt();
+  const transcription: {
+    model: 'gpt-4o-mini-transcribe';
+    language: string;
+    prompt?: string;
+  } = {
+    model: 'gpt-4o-mini-transcribe',
+    language: 'es',
+  };
+
+  if (transcriptionPrompt) {
+    transcription.prompt = transcriptionPrompt;
+  }
+
+  return {
+    transport: 'websocket' as const,
+    model: 'gpt-realtime-1.5',
+    config: {
+      outputModalities: ['text'] as ('text' | 'audio')[],
+      audio: {
+        input: {
+          format: 'pcm16' as const,
+          turnDetection: null,
+          transcription,
+        },
+      },
+    },
+  };
+}

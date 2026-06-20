@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.join(__dirname, '..');
 const SERVER_URL = 'http://127.0.0.1:3001';
-const WINDOW_WIDTH = 160;
-const WINDOW_HEIGHT = 100;
+const WINDOW_WIDTH = 360;
+const WINDOW_HEIGHT = 540;
 
 let mainWindow;
 let serverProcess;
@@ -47,14 +47,13 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
+    title: 'Agento',
     useContentSize: true,
-    frame: false,
-    transparent: false,
     resizable: false,
     maximizable: false,
     minimizable: true,
     fullscreenable: false,
-    hasShadow: true,
+    alwaysOnTop: true,
     backgroundColor: '#f4f4f5',
     webPreferences: {
       contextIsolation: true,

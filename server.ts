@@ -1,13 +1,25 @@
 import express from 'express';
+import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { audioService } from './controllers/receive-audio.ts';
+import { createAgentService } from './controllers/agent/index.ts';
+import { createTurnPostHandler } from './controllers/turn-http.ts';
+import { attachRealtimeWebSocket } from './controllers/realtime-ws.ts';
+import { isSpeechPreviewEnabled } from './config/app.ts';
+import {
+  csrfErrorHandler,
+  csrfProtection,
+  csrfTokenHandler,
+  parseCookies,
+} from './middleware/csrf.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const { handleAudioPostController } = audioService.init();
+const { sessionManager } = createAgentService();
+const handleTurnPost = createTurnPostHandler(sessionManager);
 
+app.use(parseCookies);
 app.use(express.urlencoded());
 app.use(express.json());
 
@@ -18,8 +30,18 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, './views/index.html'));
 });
 
-app.post('/audio', handleAudioPostController);
+app.get('/csrf-token', csrfProtection, csrfTokenHandler);
+app.get('/config', (_req, res) => {
+  res.json({ speechPreview: isSpeechPreviewEnabled() });
+});
+app.post('/turn', csrfProtection, handleTurnPost);
 
-app.listen(process.env.PORT || 3001, () => {
-  console.log('App listening on port ' + (process.env.PORT || 3001));
+app.use(csrfErrorHandler);
+
+const server = createServer(app);
+attachRealtimeWebSocket(server, sessionManager);
+
+const port = process.env.PORT || 3001;
+server.listen(port, () => {
+  console.log('App listening on port ' + port);
 });
