@@ -53,7 +53,11 @@ export class TurnSessionManager {
   private busy = false;
   private activeTurn: StreamingTurn | null = null;
 
-  constructor(private readonly agentTools: unknown[]) {}
+  private readonly agentTools: unknown[];
+
+  constructor(agentTools: unknown[]) {
+    this.agentTools = agentTools;
+  }
 
   /**
    * Runs a text-only turn (optionally with an image) and waits for the result.

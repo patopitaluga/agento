@@ -34,6 +34,10 @@ function buildFileToolGuidance(available: Set<string>): string[] {
     lines.push('When the user asks to delete a file, use delete_file.');
   }
 
+  if (available.has('list_files')) {
+    lines.push('When the user asks about files in a folder—how many, which names, or whether one exists—use list_files with the directory path (use "." for the workspace root).');
+  }
+
   if (canWrite) {
     lines.push('When the user shares an image—often a handwritten sketch or diagram—read it carefully and create or update files to match what it describes, unless they ask for something else.');
   }
@@ -43,8 +47,12 @@ function buildFileToolGuidance(available: Set<string>): string[] {
     lines.push('Confirm what you changed briefly after completing the work.');
   }
 
-  if (available.has('read_file') && !canMutate) {
+  if (available.has('read_file') && !canMutate && !available.has('list_files')) {
     lines.push('You can read files only. If the user asks to create, modify, rename, or delete files, explain that those tools are not available.');
+  }
+
+  if (available.has('read_file') && !canMutate && available.has('list_files')) {
+    lines.push('You can read and inspect files only. Use list_files to see which files are in a directory. If the user asks to create, modify, rename, or delete files, explain that those tools are not available.');
   }
 
   return lines;

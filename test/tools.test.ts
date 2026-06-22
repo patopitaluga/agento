@@ -64,8 +64,9 @@ describe('isBuiltinToolAllowed', () => {
     assert.equal(isBuiltinToolAllowed('delete_file', 'full', new Set()), true);
   });
 
-  it('allows only read_file in readonly profile', () => {
+  it('allows read-only inspection tools in readonly profile', () => {
     assert.equal(isBuiltinToolAllowed('read_file', 'readonly', new Set()), true);
+    assert.equal(isBuiltinToolAllowed('list_files', 'readonly', new Set()), true);
     assert.equal(isBuiltinToolAllowed('write_file', 'readonly', new Set()), false);
   });
 

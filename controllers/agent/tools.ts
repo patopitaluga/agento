@@ -26,6 +26,7 @@ import {
 import { loadPluginTools, resolvePluginsDir } from '../../config/plugins.ts';
 import { resolveWorkspaceDir } from '../../config/workspace.ts';
 import { createAppendFileTool } from '../../tools/file-tools/append-file.ts';
+import { createListFilesTool } from '../../tools/file-tools/list-files.ts';
 import { createDeleteFileTool } from '../../tools/file-tools/delete-file.ts';
 import { createReadFileTool } from '../../tools/file-tools/read-file.ts';
 import { createRenameFileTool } from '../../tools/file-tools/rename-file.ts';
@@ -33,7 +34,7 @@ import { createWriteFileTool } from '../../tools/file-tools/write-file.ts';
 import { createWorkspaceContext } from '../../tools/file-tools/workspace.ts';
 
 /**
- * Creates the five built-in file tools bound to a workspace directory.
+ * Creates the built-in file tools bound to a workspace directory.
  *
  * Used in:
  * - `controllers/agent/tools.ts` — {@link loadAgentTools}
@@ -49,6 +50,7 @@ function createBuiltinFileTools(workspaceDir: string) {
     createAppendFileTool(workspace),
     createRenameFileTool(workspace),
     createDeleteFileTool(workspace),
+    createListFilesTool(workspace),
   ];
 }
 

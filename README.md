@@ -81,8 +81,8 @@ Optional: set `DICTIONARY_PATH` in `.env` to use a different file.
 
 Built-in file tools are controlled with `TOOL_PROFILE` in `.env`:
 
-- `full` (default) — all five file tools
-- `readonly` — `read_file` only
+- `full` (default) — all six file tools
+- `readonly` — `read_file` and `list_files` only
 
 To disable specific tools (built-in or plugin), set `DISABLED_TOOLS` to a comma-separated list (for example `write_file,delete_file`).
 
@@ -148,6 +148,7 @@ Built-in file tools operate on `WORKSPACE_DIR`. Use `TOOL_PROFILE=readonly` or `
 | `append_file` | Append to a file (for larger content)       |
 | `rename_file` | Rename or move a file                       |
 | `delete_file` | Delete a file                               |
+| `list_files`  | List files in a directory (includes dotfiles; not recursive) |
 
 ------
 

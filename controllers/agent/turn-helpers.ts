@@ -23,6 +23,7 @@ export function formatToolAction(
   if (result.startsWith('Error:')) {
     const target =
       args.filePath ??
+      args.directoryPath ??
       args.fromPath ??
       args.toPath ??
       'file';
@@ -39,6 +40,8 @@ export function formatToolAction(
       const filePath = String(args.filePath ?? 'file');
       return `${toolName}: read ${filePath} (${result.length} bytes)`;
     }
+    case 'list_files':
+      return `${toolName}: ${result.split('\n')[0]}`;
     default:
       return result ? `${toolName}: ${result}` : `${toolName} ran`;
   }

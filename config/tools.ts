@@ -4,12 +4,13 @@ export const BUILTIN_FILE_TOOL_NAMES = [
   'append_file',
   'rename_file',
   'delete_file',
+  'list_files',
 ] as const;
 
 export type BuiltinFileToolName = (typeof BUILTIN_FILE_TOOL_NAMES)[number];
 export type ToolProfile = 'full' | 'readonly';
 
-const READONLY_BUILTIN_TOOLS = new Set<BuiltinFileToolName>(['read_file']);
+const READONLY_BUILTIN_TOOLS = new Set<BuiltinFileToolName>(['read_file', 'list_files']);
 
 export function getToolProfile(): ToolProfile {
   const value = process.env.TOOL_PROFILE?.trim().toLowerCase();
