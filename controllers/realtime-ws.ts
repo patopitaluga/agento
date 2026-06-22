@@ -3,7 +3,8 @@ import type { WebSocket } from 'ws';
 import { WebSocketServer } from 'ws';
 import Tokens from 'csrf';
 import { parse as parseCookieHeader } from 'cookie';
-import type { TurnSessionManager, StreamingTurn } from './agent/index.ts';
+import type { TurnSessionManager } from './agent/session-manager.ts';
+import type { StreamingTurn } from './agent/types.ts';
 import { logTurnError } from '../utils/turn-log.ts';
 
 const tokens = new Tokens();
@@ -16,46 +17,27 @@ type ClientMessage =
 type ConnectionState = 'idle' | 'recording';
 
 function verifyCsrfToken(request: IncomingMessage, token: string | undefined): boolean {
-  if (!token) {
-    return false;
-  }
+  if (!request.headers.cookie || !token) return false;
 
-  const cookieHeader = request.headers.cookie;
-  if (!cookieHeader) {
-    return false;
-  }
-
-  const secret = parseCookieHeader(cookieHeader)._csrf;
-  if (!secret) {
-    return false;
-  }
-
+  const secret = parseCookieHeader(request.headers.cookie)._csrf;
+  if (!secret) return false;
   return tokens.verify(secret, token);
 }
 
 function isAllowedOrigin(request: IncomingMessage): boolean {
-  const origin = request.headers.origin;
-  if (!origin) {
-    return true;
-  }
-
-  const host = request.headers.host;
-  if (!host) {
-    return false;
-  }
+  if (!request.headers.origin || !request.headers.host) return true;
 
   try {
-    const originHost = new URL(origin).host;
-    return originHost === host;
+    const originHost = new URL(request.headers.origin).host;
+    return originHost === request.headers.host;
   } catch {
     return false;
   }
 }
 
 function sendJson(socket: WebSocket, payload: Record<string, unknown>) {
-  if (socket.readyState === socket.OPEN) {
+  if (socket.readyState === socket.OPEN)
     socket.send(JSON.stringify(payload));
-  }
 }
 
 export function attachRealtimeWebSocket(server: import('http').Server, sessionManager: TurnSessionManager) {

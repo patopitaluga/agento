@@ -16,7 +16,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const { sessionManager } = createAgentService();
+const { sessionManager } = await createAgentService();
 const handleTurnPost = createTurnPostHandler(sessionManager);
 
 app.use(parseCookies);

@@ -1,3 +1,20 @@
+/**
+ * Manages a persistent OpenAI Realtime session and orchestrates agent turns.
+ *
+ * A turn is one user request (voice, text, and/or image) through to the agent's
+ * final text reply, including any file-tool calls along the way. Voice turns
+ * stream PCM audio and commit the buffer when recording ends; text turns go
+ * through {@link TurnSessionManager.processTextTurn}.
+ *
+ * **Exports** (1 class, 2 public methods):
+ * - {@link TurnSessionManager} — session lifecycle and single-turn concurrency guard
+ * - {@link TurnSessionManager.processTextTurn} — text/image turns (`POST /turn`)
+ * - {@link TurnSessionManager.beginTurn} — start a turn; returns a {@link StreamingTurn}
+ *   handle to stream audio (`appendAudio`), finish (`commit`), or abort (`cancel`)
+ *
+ * @module controllers/agent/session-manager
+ */
+
 import type { RealtimeSession } from '@openai/agents/realtime';
 import { RealtimeSession as RealtimeSessionClass } from '@openai/agents/realtime';
 import { buildTranscriptionPrompt } from '../../config/dictionary.ts';
@@ -20,12 +37,30 @@ import type { StreamingTurn, TurnMetadata, TurnResult, TurnStreamEvent } from '.
 
 const TURN_TIMEOUT_MS = 120_000;
 
+/**
+ * Keeps one Realtime WebSocket session alive and runs one turn at a time.
+ *
+ * Imported in:
+ * - `controllers/agent/index.ts` — instantiated in `createAgentService`
+ * - `controllers/realtime-ws.ts` — type for `attachRealtimeWebSocket` session param
+ * - `controllers/turn-http.ts` — type for `createTurnPostHandler` session param
+ *
+ * @param agentTools - Tools loaded at startup (built-ins, plugins, profile filters)
+ */
 export class TurnSessionManager {
   private session: RealtimeSession | null = null;
   private connectPromise: Promise<RealtimeSession> | null = null;
   private busy = false;
   private activeTurn: StreamingTurn | null = null;
 
+  constructor(private readonly agentTools: unknown[]) {}
+
+  /**
+   * Runs a text-only turn (optionally with an image) and waits for the result.
+   *
+   * Used in:
+   * - `controllers/turn-http.ts` — `POST /turn` handler
+   */
   async processTextTurn(metadata: TurnMetadata): Promise<TurnResult> {
     const turn = await this.beginTurn({ ...metadata, hasAudio: false });
     try {
@@ -36,6 +71,13 @@ export class TurnSessionManager {
     }
   }
 
+  /**
+   * Starts a turn and returns a handle to stream audio or commit/cancel it.
+   *
+   * Used in:
+   * - `controllers/realtime-ws.ts` — WebSocket `turn.start` handler (voice turns)
+   * - `controllers/agent/session-manager.ts` — `processTextTurn`
+   */
   async beginTurn(
     metadata: TurnMetadata,
     onStream?: (event: TurnStreamEvent) => void,
@@ -265,7 +307,7 @@ export class TurnSessionManager {
       throw new Error('OPENAI_API_KEY is not set');
     }
 
-    const session = new RealtimeSessionClass(createAgent(), createSessionConfig());
+    const session = new RealtimeSessionClass(createAgent(this.agentTools), createSessionConfig());
     const transcriptionPrompt = buildTranscriptionPrompt();
 
     if (transcriptionPrompt) {

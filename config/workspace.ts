@@ -1,7 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const projectRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+export const projectRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 export function resolveWorkspaceDir(): string {
   const configured = process.env.WORKSPACE_DIR?.trim();
@@ -14,5 +14,3 @@ export function resolveWorkspaceDir(): string {
     ? path.resolve(configured)
     : path.resolve(projectRoot, configured);
 }
-
-export { projectRoot };

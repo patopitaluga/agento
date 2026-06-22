@@ -2,7 +2,7 @@ import path from 'path';
 import { mkdirSync, readFileSync, unlinkSync } from 'fs';
 import type { Request, Response } from 'express';
 import multer from 'multer';
-import type { TurnSessionManager } from './agent/index.ts';
+import type { TurnSessionManager } from './agent/session-manager.ts';
 import type { TurnMetadata } from './agent/types.ts';
 import { projectRoot } from '../config/workspace.ts';
 import { logTurn, logTurnError } from '../utils/turn-log.ts';

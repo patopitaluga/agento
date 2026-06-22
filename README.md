@@ -44,7 +44,7 @@ WORKSPACE_DIR=generated
 
 `WORKSPACE_DIR` is the agent's working folder. It can be a path relative to the project (default: `generated`) or an absolute path outside the repository.
 
-Restart the server after changing `.env`, `agent-context.md`, or `dictionary.md`.
+Restart the server after changing `.env`, `agent-context.md`, `dictionary.md`, or plugins under `plugins/`.
 
 Run tests:
 
@@ -76,6 +76,32 @@ The dictionary is loaded into:
 Put the most important terms first if the file is long.
 
 Optional: set `DICTIONARY_PATH` in `.env` to use a different file.
+
+### Tool profile and plugins
+
+Built-in file tools are controlled with `TOOL_PROFILE` in `.env`:
+
+- `full` (default) — all five file tools
+- `readonly` — `read_file` only
+
+To disable specific tools (built-in or plugin), set `DISABLED_TOOLS` to a comma-separated list (for example `write_file,delete_file`).
+
+Local plugins live in the gitignored `plugins/` folder. Each plugin is a subdirectory with an `index.ts` that exports `tools`:
+
+```typescript
+export const tools = [ /* Realtime tool definitions */ ];
+```
+
+Copy from `plugins.example/hello/` to try the sample `echo` plugin:
+
+```bash
+mkdir -p plugins
+cp -R plugins.example/hello plugins/hello
+```
+
+Restart the server after adding or removing plugins.
+
+Optional: set `PLUGINS_DIR` in `.env` to use a different folder.
 
 ------
 
@@ -113,7 +139,7 @@ While recording, the live preview uses the browser's speech engine. After you re
 
 ## Available tools
 
-The agent can operate on files inside `WORKSPACE_DIR`:
+Built-in file tools operate on `WORKSPACE_DIR`. Use `TOOL_PROFILE=readonly` or `DISABLED_TOOLS` to restrict them (see [Personal configuration](#personal-configuration)). Plugins in `plugins/` add more tools automatically.
 
 | Tool          | Action                                      |
 |---------------|---------------------------------------------|
@@ -132,12 +158,13 @@ agento/
 ├── components/          # Vue UI (Mic.vue)
 ├── config/              # Workspace, agent context, dictionary loading
 ├── controllers/
-│   ├── agent/           # Realtime session, instructions, turn orchestration
+│   ├── agent/           # Realtime session, instructions, tool registry, turn orchestration
 │   ├── turn-http.ts     # POST /turn (text + optional image)
 │   └── realtime-ws.ts   # WebSocket /ws (voice turns)
 ├── electron/            # Electron main process
 ├── public/              # Frontend static assets
-├── tools/file-tools/    # Agent file tools
+├── tools/file-tools/    # File tool implementations (wired in controllers/agent/tools.ts)
+├── plugins.example/     # Sample plugin (copy into gitignored plugins/)
 ├── views/               # Entry HTML
 ├── server.ts            # Express server
 └── generated/           # Default workspace
@@ -154,6 +181,9 @@ agento/
 | `AGENT_CONTEXT_PATH` | Path to personal agent context markdown file       | `agent-context.md` |
 | `DICTIONARY_PATH`    | Path to speech dictionary for voice disambiguation | `dictionary.md`    |
 | `SPEECH_PREVIEW`     | Browser speech preview while recording (`false` to disable) | enabled   |
+| `TOOL_PROFILE`       | Built-in file tools: `full` or `readonly`          | `full`             |
+| `DISABLED_TOOLS`     | Comma-separated tool names to disable              | —                  |
+| `PLUGINS_DIR`        | Folder for local plugins                           | `plugins`          |
 | `PORT`               | Express server port                                | `3001`             |
 
 ------
@@ -161,6 +191,8 @@ agento/
 ## Security
 
 Agento is a **local development tool**. It runs a server on your machine, stores your OpenAI API key in `.env`, and gives the agent read/write access to `WORKSPACE_DIR`.
+
+Plugins in `plugins/` are local TypeScript modules loaded at startup. Only install plugins you trust—they run with the same privileges as the server.
 
 Do not expose it to the internet without proper authentication. Use it on `localhost` or a trusted network only.
 
