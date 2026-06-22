@@ -1,13 +1,30 @@
 # Agento
 
-Voice-controlled file assistant. It uses the OpenAI Realtime API to understand spoken or typed commands, run file operations, and answer questions—including ones with an attached image.
+Hands-free agent. Speak or type to an agent that actually does the work — documentation, planning, recipes, file operations — or snap a handwritten diagram and let it build the files. Customize its workspace and context to fit whatever you're working on.
 
-The desktop app (Electron) stays on top of other windows on macOS.
+------
+
+## Index
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Personal configuration](#personal-configuration)
+- [Usage](#usage)
+- [Interface](#interface)
+- [Available tools](#available-tools)
+- [Project structure](#project-structure)
+- [Environment variables](#environment-variables)
+- [Security](#security)
+- [License](#license)
+
+------
 
 ## Requirements
 
 - [Node.js](https://nodejs.org/) 22 or later (runs `.ts` files directly; no build step)
 - An OpenAI API key with access to Realtime models (`gpt-realtime-1.5`, `gpt-4o-mini-transcribe`)
+
+------
 
 ## Installation
 
@@ -35,6 +52,8 @@ Run tests:
 npm test
 ```
 
+------
+
 ## Personal configuration
 
 ### Agent context
@@ -58,6 +77,8 @@ Put the most important terms first if the file is long.
 
 Optional: set `DICTIONARY_PATH` in `.env` to use a different file.
 
+------
+
 ## Usage
 
 ### Desktop app (recommended)
@@ -76,15 +97,19 @@ npm run server
 
 Open [http://localhost:3001](http://localhost:3001) in your browser.
 
+------
+
 ## Interface
 
 - **Microphone** — hold to speak; PCM audio is streamed over WebSocket (`/ws`) to the server, which forwards it to the OpenAI Realtime API.
 - **Text field + Send** — type a question or instruction; sent via `POST /turn`.
-- **Camera** — capture a photo with your Mac's camera to ask about it.
+- **Camera** — photograph a handwritten sketch or diagram; the agent reads it and creates or updates files to match.
 
 The history panel shows what you said or typed, tool actions that ran (for example `write_file: Updated README.md (7035 bytes)`), and the assistant's reply.
 
 While recording, the live preview uses the browser's speech engine. After you release the mic, the server transcript comes from `gpt-4o-mini-transcribe` and may differ from what the Realtime model understood from the audio.
+
+------
 
 ## Available tools
 
@@ -97,6 +122,8 @@ The agent can operate on files inside `WORKSPACE_DIR`:
 | `append_file` | Append to a file (for larger content)       |
 | `rename_file` | Rename or move a file                       |
 | `delete_file` | Delete a file                               |
+
+------
 
 ## Project structure
 
@@ -116,6 +143,8 @@ agento/
 └── generated/           # Default workspace
 ```
 
+------
+
 ## Environment variables
 
 | Variable             | Description                                        | Default            |
@@ -127,11 +156,15 @@ agento/
 | `SPEECH_PREVIEW`     | Browser speech preview while recording (`false` to disable) | enabled   |
 | `PORT`               | Express server port                                | `3001`             |
 
+------
+
 ## Security
 
 Agento is a **local development tool**. It runs a server on your machine, stores your OpenAI API key in `.env`, and gives the agent read/write access to `WORKSPACE_DIR`.
 
 Do not expose it to the internet without proper authentication. Use it on `localhost` or a trusted network only.
+
+------
 
 ## License
 

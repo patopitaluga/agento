@@ -1,7 +1,7 @@
 {
   "name": "agento",
   "version": "1.0.0",
-  "description": "Voice-controlled file assistant",
+  "description": "Hands-free agent. Speak or type to an agent that actually does the work — documentation, planning, recipes, file operations — or snap a handwritten diagram and let it build the files. Customize its workspace and context to fit whatever you're working on.",
   "main": "electron/main.mjs",
   "scripts": {
     "start": "electron .",

@@ -73,4 +73,3 @@ class PcmCapture {
 }
 
 window.PcmCapture = PcmCapture;
-window.REALTIME_PCM_SAMPLE_RATE = TARGET_SAMPLE_RATE;
