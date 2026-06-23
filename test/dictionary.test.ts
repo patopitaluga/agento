@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   TRANSCRIPTION_PROMPT_MAX_CHARS,
   buildTranscriptionPrompt,
+  isEmptyOrDictionaryHallucination,
 } from '../config/dictionary.ts';
 
 describe('buildTranscriptionPrompt', () => {
@@ -22,5 +23,30 @@ describe('buildTranscriptionPrompt', () => {
     assert.ok(prompt);
     assert.ok(prompt!.length <= TRANSCRIPTION_PROMPT_MAX_CHARS);
     assert.doesNotMatch(prompt!, /term-199$/);
+  });
+});
+
+describe('isEmptyOrDictionaryHallucination', () => {
+  const dictionary = [
+    'MCP — Model Context Protocol (not MSP)',
+    'Agento — this project name',
+    'README.md — project readme file',
+  ].join('\n');
+
+  it('treats empty transcript as unusable', () => {
+    assert.equal(isEmptyOrDictionaryHallucination('', dictionary), true);
+    assert.equal(isEmptyOrDictionaryHallucination('   ', dictionary), true);
+  });
+
+  it('treats multi-line dictionary echo as hallucination', () => {
+    const transcript = `${dictionary}\n`;
+    assert.equal(isEmptyOrDictionaryHallucination(transcript, dictionary), true);
+  });
+
+  it('allows real speech that mentions one dictionary term', () => {
+    assert.equal(
+      isEmptyOrDictionaryHallucination('update the README.md file', dictionary),
+      false,
+    );
   });
 });

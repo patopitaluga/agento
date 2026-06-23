@@ -51,15 +51,17 @@ export function attachRealtimeWebSocket(server: import('http').Server, sessionMa
 
     let state: ConnectionState = 'idle';
     let activeTurn: StreamingTurn | null = null;
+    let startGeneration = 0;
 
     const clearTurn = () => {
       activeTurn = null;
       state = 'idle';
     };
 
-    const resetTurn = () => {
+    const resetTurn = (notifyCancelled = false) => {
       activeTurn?.cancel();
       clearTurn();
+      if (notifyCancelled) sendJson(socket, { type: 'turn.cancelled' });
     };
 
     socket.on('message', async (data, isBinary) => {
@@ -83,7 +85,8 @@ export function attachRealtimeWebSocket(server: import('http').Server, sessionMa
       }
 
       if (message.type === 'turn.cancel') {
-        resetTurn();
+        startGeneration += 1;
+        resetTurn(true);
         return;
       }
 
@@ -107,8 +110,10 @@ export function attachRealtimeWebSocket(server: import('http').Server, sessionMa
           return;
         }
 
+        const generation = startGeneration;
+
         try {
-          activeTurn = await sessionManager.beginTurn({
+          const turn = await sessionManager.beginTurn({
             question: question || undefined,
             imageDataUrl: image,
             hasAudio,
@@ -116,6 +121,14 @@ export function attachRealtimeWebSocket(server: import('http').Server, sessionMa
             const { type, ...payload } = streamEvent;
             sendJson(socket, { type: `turn.${type}`, ...payload });
           });
+
+          if (generation !== startGeneration) {
+            turn.cancel();
+            sendJson(socket, { type: 'turn.cancelled' });
+            return;
+          }
+
+          activeTurn = turn;
 
           if (hasAudio) {
             state = 'recording';
@@ -159,6 +172,7 @@ export function attachRealtimeWebSocket(server: import('http').Server, sessionMa
     });
 
     socket.on('close', () => {
+      startGeneration += 1;
       resetTurn();
     });
   });

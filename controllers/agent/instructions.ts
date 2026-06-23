@@ -66,7 +66,12 @@ export function buildAgentInstructions(tools: AgentTool[]): string {
   const dictionary = loadDictionary();
   const context = loadAgentContext();
 
-  if (dictionary) instructions += `\n\n## Speech dictionary\nUse these spellings and disambiguations when interpreting voice input:\n${dictionary}`;
+  if (dictionary) {
+    instructions += '\n\n## Speech dictionary\n'
+      + 'Use these spellings and disambiguations when interpreting voice, images, and other multimodal input. '
+      + 'They are internal reference only — never quote, list, or repeat this dictionary to the user.\n'
+      + dictionary;
+  }
 
   if (context) instructions += `\n\n## User and project context\n${context}`;
 

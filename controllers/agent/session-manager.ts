@@ -16,7 +16,7 @@
  */
 import type { RealtimeSession } from '@openai/agents/realtime';
 import { RealtimeSession as RealtimeSessionClass } from '@openai/agents/realtime';
-import { buildTranscriptionPrompt } from '../../config/dictionary.ts';
+import { buildTranscriptionPrompt, isEmptyOrDictionaryHallucination } from '../../config/dictionary.ts';
 import {
   logResponseDone,
   logToolEnd,
@@ -92,7 +92,12 @@ export class TurnSessionManager {
     const session = await this.getSession();
     let cleanedUp = false;
     let abortTurn: ((error: Error) => void) | null = null;
+    let silentCancel: (() => void) | null = null;
+    let commitStarted = false;
     let responseCycle = 0;
+    let audioCommitSent = false;
+    let transcriptionFinalized = false;
+    let responseCreateSent = false;
 
     logTurn('started', {
       hasAudio: metadata.hasAudio ?? false,
@@ -122,10 +127,36 @@ export class TurnSessionManager {
         if (this.activeTurn === streamingTurn) this.activeTurn = null;
       };
 
+      const skipTurn = () => {
+        if (settled) return;
+        settled = true;
+        abortTurn = null;
+        silentCancel = null;
+        cleanup();
+        logTurn('skipped empty transcript');
+        resolve({ userPrompt: '', actions: [], response: '' });
+      };
+
+      const maybeCreateResponse = () => {
+        if (responseCreateSent || !audioCommitSent || !metadata.hasAudio || !transcriptionFinalized) return;
+
+        if (isEmptyOrDictionaryHallucination(transcript)) {
+          skipTurn();
+          return;
+        }
+
+        responseCreateSent = true;
+        session.transport.sendEvent({
+          type: 'response.create',
+          response: { output_modalities: ['text'] },
+        });
+      };
+
       const finish = (error?: Error) => {
         if (settled) return;
         settled = true;
         abortTurn = null;
+        silentCancel = null;
         cleanup();
         if (error) {
           logTurnError('failed', error, {
@@ -185,9 +216,11 @@ export class TurnSessionManager {
           onStream?.({ type: 'transcript.delta', delta: event.delta, transcript });
         }
 
-        if (event.type === 'conversation.item.input_audio_transcription.completed' && event.transcript) {
-          transcript = event.transcript;
-          onStream?.({ type: 'transcript.completed', transcript: event.transcript });
+        if (event.type === 'conversation.item.input_audio_transcription.completed') {
+          transcript = event.transcript ?? '';
+          transcriptionFinalized = true;
+          if (event.transcript) onStream?.({ type: 'transcript.completed', transcript: event.transcript });
+          maybeCreateResponse();
         }
 
         if (event.type === 'response.output_text.delta' && event.delta) {
@@ -229,6 +262,15 @@ export class TurnSessionManager {
 
       abortTurn = (error: Error) => finish(error);
 
+      silentCancel = () => {
+        if (settled) return;
+        settled = true;
+        abortTurn = null;
+        silentCancel = null;
+        cleanup();
+        logTurn('cancelled');
+      };
+
       const messageContent: Array<
         { type: 'input_image'; image: string } | { type: 'input_text'; text: string }
       > = [];
@@ -254,18 +296,21 @@ export class TurnSessionManager {
         session.transport.sendAudio(arrayBuffer, { commit: false });
       },
       commit: async () => {
+        commitStarted = true;
         if (metadata.hasAudio) {
           session.transport.sendEvent({ type: 'input_audio_buffer.commit' });
-          session.transport.sendEvent({
-            type: 'response.create',
-            response: { output_modalities: ['text'] },
-          });
+          audioCommitSent = true;
+          maybeCreateResponse();
         }
 
         return turnPromise;
       },
       cancel: () => {
-        abortTurn?.(new Error('Turn cancelled'));
+        if (commitStarted) {
+          abortTurn?.(new Error('Turn cancelled'));
+          return;
+        }
+        silentCancel?.();
       },
     };
 
