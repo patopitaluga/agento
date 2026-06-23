@@ -1,3 +1,9 @@
+import type { RealtimeAgent } from '@openai/agents/realtime';
+
+export type AgentTool = NonNullable<
+  NonNullable<ConstructorParameters<typeof RealtimeAgent>[0]>['tools']
+>[number];
+
 export const BUILTIN_FILE_TOOL_NAMES = [
   'read_file',
   'write_file',

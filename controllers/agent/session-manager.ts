@@ -4,17 +4,16 @@
  * A turn is one user request (voice, text, and/or image) through to the agent's
  * final text reply, including any file-tool calls along the way. Voice turns
  * stream PCM audio and commit the buffer when recording ends; text turns go
- * through {@link TurnSessionManager.processTextTurn}.
+ * through `TurnSessionManager.processTextTurn`.
  *
  * **Exports** (1 class, 2 public methods):
- * - {@link TurnSessionManager} — session lifecycle and single-turn concurrency guard
- * - {@link TurnSessionManager.processTextTurn} — text/image turns (`POST /turn`)
- * - {@link TurnSessionManager.beginTurn} — start a turn; returns a {@link StreamingTurn}
+ * - `TurnSessionManager` — session lifecycle and single-turn concurrency guard
+ * - `TurnSessionManager.processTextTurn` — text/image turns (`POST /turn`)
+ * - `TurnSessionManager.beginTurn` — start a turn; returns a `StreamingTurn`
  *   handle to stream audio (`appendAudio`), finish (`commit`), or abort (`cancel`)
  *
  * @module controllers/agent/session-manager
  */
-
 import type { RealtimeSession } from '@openai/agents/realtime';
 import { RealtimeSession as RealtimeSessionClass } from '@openai/agents/realtime';
 import { buildTranscriptionPrompt } from '../../config/dictionary.ts';
@@ -33,6 +32,7 @@ import {
   responseHasToolCalls,
   toError,
 } from './turn-helpers.ts';
+import type { AgentTool } from '../../config/tools.ts';
 import type { StreamingTurn, TurnMetadata, TurnResult, TurnStreamEvent } from './types.ts';
 
 const TURN_TIMEOUT_MS = 120_000;
@@ -53,9 +53,9 @@ export class TurnSessionManager {
   private busy = false;
   private activeTurn: StreamingTurn | null = null;
 
-  private readonly agentTools: unknown[];
+  private readonly agentTools: AgentTool[];
 
-  constructor(agentTools: unknown[]) {
+  constructor(agentTools: AgentTool[]) {
     this.agentTools = agentTools;
   }
 

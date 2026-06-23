@@ -1,3 +1,4 @@
+import stylistic from '@stylistic/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 
 export default [
@@ -9,8 +10,26 @@ export default [
     languageOptions: {
       parser: tsParser,
     },
+    plugins: {
+      '@stylistic': stylistic,
+    },
     rules: {
       curly: ['error', 'multi'],
+      '@stylistic/lines-around-comment': [
+        'error',
+        {
+          beforeBlockComment: false,
+          afterBlockComment: false,
+          allowBlockStart: true,
+          allowClassStart: true,
+          allowObjectStart: true,
+          allowArrayStart: true,
+          allowInterfaceStart: true,
+          allowTypeStart: true,
+          allowEnumStart: true,
+          allowModuleStart: true,
+        },
+      ],
     },
   },
   {

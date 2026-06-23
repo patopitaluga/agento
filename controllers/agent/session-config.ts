@@ -1,8 +1,9 @@
 import { RealtimeAgent } from '@openai/agents/realtime';
 import { buildTranscriptionPrompt } from '../../config/dictionary.ts';
 import { buildAgentInstructions } from './instructions.ts';
+import type { AgentTool } from '../../config/tools.ts';
 
-export function createAgent(tools: unknown[]) {
+export function createAgent(tools: AgentTool[]) {
   return new RealtimeAgent({
     name: 'File assistant',
     instructions: buildAgentInstructions(tools),

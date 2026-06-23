@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import type { AgentTool } from '../../config/tools.ts';
 import { projectRoot } from './workspace.ts';
 
 const DEFAULT_PLUGINS_DIR = 'plugins';
@@ -15,13 +16,13 @@ export function resolvePluginsDir(): string {
     : path.resolve(projectRoot, configured);
 }
 
-export async function loadPluginTools(pluginsDir: string): Promise<unknown[]> {
+export async function loadPluginTools(pluginsDir: string): Promise<AgentTool[]> {
   if (!existsSync(pluginsDir)) return [];
 
   const entries = readdirSync(pluginsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'));
 
-  const tools: unknown[] = [];
+  const tools: AgentTool[] = [];
 
   for (const entry of entries) {
     const indexPath = path.join(pluginsDir, entry.name, 'index.ts');
@@ -43,7 +44,7 @@ export async function loadPluginTools(pluginsDir: string): Promise<unknown[]> {
         continue;
       }
 
-      tools.push(...pluginTools);
+      tools.push(...(pluginTools as AgentTool[]));
       console.log(`Loaded plugin "${entry.name}" (${pluginTools.length} tool(s))`);
     } catch (error) {
       console.error(`Failed to load plugin "${entry.name}":`, error);

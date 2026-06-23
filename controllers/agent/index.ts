@@ -1,16 +1,15 @@
 /**
  * Application entry point for the Realtime agent.
  *
- * Wires startup dependencies: loads tools ({@link loadAgentTools}), then
- * constructs a {@link TurnSessionManager} bound to that tool list. Called
+ * Wires startup dependencies: loads tools (`loadAgentTools`), then
+ * constructs a `TurnSessionManager` bound to that tool list. Called
  * once when the Express server starts.
  *
  * **Exports** (1 function):
- * - {@link createAgentService} — loads tools and returns the session manager
+ * - `createAgentService` — loads tools and returns the session manager
  *
  * @module controllers/agent/index
  */
-
 import { TurnSessionManager } from './session-manager.ts';
 import { loadAgentTools } from './tools.ts';
 

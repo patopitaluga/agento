@@ -1,6 +1,6 @@
 import { loadAgentContext } from '../../config/agent-context.ts';
 import { loadDictionary } from '../../config/dictionary.ts';
-import { getToolName } from '../../config/tools.ts';
+import { getToolName, type AgentTool } from '../../config/tools.ts';
 
 const INTRO = `You are a hands-free agent. The user speaks or types commands and may attach photos of handwritten sketches or diagrams.`;
 
@@ -49,7 +49,7 @@ function buildAvailableToolsSection(toolNames: string[]): string {
   ].join('\n');
 }
 
-export function buildAgentInstructions(tools: unknown[]): string {
+export function buildAgentInstructions(tools: AgentTool[]): string {
   const toolNames = tools
     .map((tool) => getToolName(tool))
     .filter((name): name is string => Boolean(name));
