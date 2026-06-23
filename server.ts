@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 import { createAgentService } from './controllers/agent/index.ts';
 import { createTurnPostHandler } from './controllers/turn-http.ts';
 import { attachRealtimeWebSocket } from './controllers/realtime-ws.ts';
-import { isSpeechPreviewEnabled } from './config/app.ts';
 import {
   csrfErrorHandler,
   csrfProtection,
@@ -15,33 +14,45 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const app = express();
-const { sessionManager } = await createAgentService();
-const handleTurnPost = createTurnPostHandler(sessionManager);
+export function isSpeechPreviewEnabled(): boolean {
+  const value = process.env.SPEECH_PREVIEW?.trim().toLowerCase();
 
-app.use(parseCookies);
-app.use(express.urlencoded());
-app.use(express.json());
+  if (value === 'false' || value === '0' || value === 'no') return false;
 
-app.use(express.static('public'));
-app.use('/components', express.static('components'));
+  return true;
+}
 
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, './views/index.html'));
-});
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
 
-app.get('/csrf-token', csrfProtection, csrfTokenHandler);
-app.get('/config', (_req, res) => {
-  res.json({ speechPreview: isSpeechPreviewEnabled() });
-});
-app.post('/turn', csrfProtection, handleTurnPost);
+if (isMainModule) {
+  const app = express();
+  const { sessionManager } = await createAgentService();
+  const handleTurnPost = createTurnPostHandler(sessionManager);
 
-app.use(csrfErrorHandler);
+  app.use(parseCookies);
+  app.use(express.urlencoded());
+  app.use(express.json());
 
-const server = createServer(app);
-attachRealtimeWebSocket(server, sessionManager);
+  app.use(express.static('public'));
+  app.use('/components', express.static('components'));
 
-const port = process.env.PORT || 3001;
-server.listen(port, () => {
-  console.log('App listening on port ' + port);
-});
+  app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, './views/index.html'));
+  });
+
+  app.get('/csrf-token', csrfProtection, csrfTokenHandler);
+  app.get('/config', (_req, res) => {
+    res.json({ speechPreview: isSpeechPreviewEnabled() });
+  });
+  app.post('/turn', csrfProtection, handleTurnPost);
+
+  app.use(csrfErrorHandler);
+
+  const server = createServer(app);
+  attachRealtimeWebSocket(server, sessionManager);
+
+  const port = process.env.PORT || 3001;
+  server.listen(port, () => {
+    console.log('Agento server listening on port ' + port);
+  });
+}

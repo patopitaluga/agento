@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { isSpeechPreviewEnabled } from '../config/app.ts';
+import { isSpeechPreviewEnabled } from '../server.ts';
 
 describe('isSpeechPreviewEnabled', () => {
   const original = process.env.SPEECH_PREVIEW;

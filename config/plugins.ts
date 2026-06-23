@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import type { AgentTool } from '../../config/tools.ts';
+import type { AgentTool } from './tools.ts';
 import { projectRoot } from './workspace.ts';
 
 const DEFAULT_PLUGINS_DIR = 'plugins';
