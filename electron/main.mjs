@@ -30,9 +30,7 @@ async function waitForServer() {
   for (let attempt = 0; attempt < 50; attempt += 1) {
     try {
       const response = await fetch(SERVER_URL);
-      if (response.ok) {
-        return;
-      }
+      if (response.ok) return;
     } catch {
       // Server still starting.
     }
@@ -75,19 +73,13 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (process.platform !== 'darwin') app.quit();
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
 app.on('will-quit', () => {
-  if (serverProcess && !serverProcess.killed) {
-    serverProcess.kill();
-  }
+  if (serverProcess && !serverProcess.killed) serverProcess.kill();
 });

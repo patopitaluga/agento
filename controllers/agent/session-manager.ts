@@ -86,9 +86,7 @@ export class TurnSessionManager {
     metadata: TurnMetadata,
     onStream?: (event: TurnStreamEvent) => void,
   ): Promise<StreamingTurn> {
-    if (this.busy) {
-      throw new Error('Already processing a turn');
-    }
+    if (this.busy) throw new Error('Already processing a turn');
 
     this.busy = true;
     const session = await this.getSession();
@@ -113,9 +111,7 @@ export class TurnSessionManager {
       }, TURN_TIMEOUT_MS);
 
       const cleanup = () => {
-        if (cleanedUp) {
-          return;
-        }
+        if (cleanedUp) return;
         cleanedUp = true;
         clearTimeout(timeout);
         session.off('transport_event', onTransportEvent);
@@ -123,15 +119,11 @@ export class TurnSessionManager {
         session.off('agent_tool_end', onAgentToolEnd);
         session.off('error', onSessionError);
         this.busy = false;
-        if (this.activeTurn === streamingTurn) {
-          this.activeTurn = null;
-        }
+        if (this.activeTurn === streamingTurn) this.activeTurn = null;
       };
 
       const finish = (error?: Error) => {
-        if (settled) {
-          return;
-        }
+        if (settled) return;
         settled = true;
         abortTurn = null;
         cleanup();
@@ -161,9 +153,7 @@ export class TurnSessionManager {
       };
 
       const onSessionError = ({ error }: { error: unknown }) => {
-        if (this.session === session) {
-          this.session = null;
-        }
+        if (this.session === session) this.session = null;
         logTurnError('session error', error, { responseCycle, actionCount: actions.length });
         finish(toError(error));
       };
@@ -243,15 +233,10 @@ export class TurnSessionManager {
         { type: 'input_image'; image: string } | { type: 'input_text'; text: string }
       > = [];
 
-      if (metadata.imageDataUrl) {
-        messageContent.push({ type: 'input_image', image: metadata.imageDataUrl });
-      }
-      if (metadata.question) {
-        messageContent.push({ type: 'input_text', text: metadata.question });
-      }
+      if (metadata.imageDataUrl) messageContent.push({ type: 'input_image', image: metadata.imageDataUrl });
+      if (metadata.question) messageContent.push({ type: 'input_text', text: metadata.question });
 
-      if (messageContent.length > 0) {
-        session.transport.sendMessage(
+      if (messageContent.length > 0) session.transport.sendMessage(
           {
             type: 'message',
             role: 'user',
@@ -260,7 +245,7 @@ export class TurnSessionManager {
           {},
           { triggerResponse: !metadata.hasAudio },
         );
-      }
+      
     });
 
     const streamingTurn: StreamingTurn = {
@@ -289,13 +274,9 @@ export class TurnSessionManager {
   }
 
   private async getSession(): Promise<RealtimeSession> {
-    if (this.session?.transport.status === 'connected') {
-      return this.session;
-    }
+    if (this.session?.transport.status === 'connected') return this.session;
 
-    if (this.connectPromise) {
-      return this.connectPromise;
-    }
+    if (this.connectPromise) return this.connectPromise;
 
     this.connectPromise = this.connect();
     try {
@@ -307,24 +288,19 @@ export class TurnSessionManager {
 
   private async connect(): Promise<RealtimeSession> {
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY is not set');
-    }
+    if (!apiKey) throw new Error('OPENAI_API_KEY is not set');
 
     const session = new RealtimeSessionClass(createAgent(this.agentTools), createSessionConfig());
     const transcriptionPrompt = buildTranscriptionPrompt();
 
-    if (transcriptionPrompt) {
-      logTurn('session dictionary loaded', {
+    if (transcriptionPrompt) logTurn('session dictionary loaded', {
         promptLength: transcriptionPrompt.length,
       });
-    }
+    
 
     session.on('error', ({ error }) => {
       console.error(error);
-      if (this.session === session) {
-        this.session = null;
-      }
+      if (this.session === session) this.session = null;
     });
 
     await session.connect({ apiKey });

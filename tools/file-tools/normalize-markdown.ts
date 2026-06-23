@@ -2,9 +2,7 @@ const MERMAID_BLOCK_PATTERN = /```mermaid\r?\n([\s\S]*?)```/g;
 
 function fixNodeLabels(text: string): string {
   return text.replace(/\[([^\]]*)\]/g, (match, label: string) => {
-    if (!label.includes('\\n') && !label.includes('\n')) {
-      return match;
-    }
+    if (!label.includes('\\n') && !label.includes('\n')) return match;
 
     return `[${label.replace(/\\n/g, '<br/>').replace(/\r?\n/g, '<br/>')}]`;
   });
@@ -16,9 +14,7 @@ function normalizeMermaidDiagram(diagram: string): string {
 
 /** Fixes common Mermaid mistakes before writing markdown to disk. */
 export function normalizeMarkdownContent(content: string): string {
-  if (!content.includes('```mermaid')) {
-    return content;
-  }
+  if (!content.includes('```mermaid')) return content;
 
   return content.replace(MERMAID_BLOCK_PATTERN, (block, diagram: string) => {
     return `\`\`\`mermaid\n${normalizeMermaidDiagram(diagram)}\`\`\``;
@@ -31,9 +27,7 @@ export function shouldNormalizeMarkdown(filePath: string, content: string): bool
 
 /** Normalizes diagram lines appended without a surrounding mermaid fence. */
 export function normalizeMarkdownChunk(content: string): string {
-  if (content.includes('```mermaid')) {
-    return normalizeMarkdownContent(content);
-  }
+  if (content.includes('```mermaid')) return normalizeMarkdownContent(content);
 
   return content
     .split('\n')
@@ -41,9 +35,7 @@ export function normalizeMarkdownChunk(content: string): string {
       const looksLikeMermaidLine =
         /-->|graph |flowchart |sequenceDiagram|classDiagram|\[[^\]]*\\n/.test(line);
 
-      if (!looksLikeMermaidLine) {
-        return line;
-      }
+      if (!looksLikeMermaidLine) return line;
 
       return fixNodeLabels(line);
     })
@@ -51,17 +43,13 @@ export function normalizeMarkdownChunk(content: string): string {
 }
 
 export function prepareMarkdownForWrite(filePath: string, content: string): string {
-  if (!shouldNormalizeMarkdown(filePath, content)) {
-    return content;
-  }
+  if (!shouldNormalizeMarkdown(filePath, content)) return content;
 
   return normalizeMarkdownContent(content);
 }
 
 export function prepareMarkdownForAppend(filePath: string, content: string): string {
-  if (!filePath.toLowerCase().endsWith('.md') && !content.includes('```mermaid')) {
-    return content;
-  }
+  if (!filePath.toLowerCase().endsWith('.md') && !content.includes('```mermaid')) return content;
 
   return normalizeMarkdownChunk(content);
 }

@@ -1,9 +1,7 @@
 import type { TurnMetadata } from './types.ts';
 
 export function parseToolArguments(rawArguments: string | undefined): Record<string, unknown> {
-  if (!rawArguments) {
-    return {};
-  }
+  if (!rawArguments) return {};
 
   try {
     const parsed = JSON.parse(rawArguments) as unknown;
@@ -50,22 +48,19 @@ export function formatToolAction(
 export function buildUserPrompt(metadata: TurnMetadata, transcript?: string): string {
   const parts: string[] = [];
 
-  if (metadata.imageDataUrl) {
-    parts.push('[Image attached]');
-  }
+  if (metadata.imageDataUrl) parts.push('[Image attached]');
 
   const spoken = transcript?.trim();
   const typed = metadata.question?.trim();
 
-  if (spoken && typed && spoken !== typed) {
-    parts.push(`${spoken} (${typed})`);
-  } else if (spoken) {
+  if (spoken && typed && spoken !== typed) parts.push(`${spoken} (${typed})`);
+   else if (spoken) 
     parts.push(spoken);
-  } else if (typed) {
+   else if (typed) 
     parts.push(typed);
-  } else if (metadata.hasAudio) {
+   else if (metadata.hasAudio) 
     parts.push('Voice command');
-  }
+  
 
   return parts.join(' ');
 }
@@ -78,18 +73,12 @@ export function responseHasToolCalls(event: {
 }
 
 export function toError(value: unknown): Error {
-  if (value instanceof Error) {
-    return value;
-  }
+  if (value instanceof Error) return value;
 
   if (typeof value === 'object' && value !== null) {
     const err = value as { message?: string; error?: { message?: string } };
-    if (typeof err.message === 'string' && err.message) {
-      return new Error(err.message);
-    }
-    if (typeof err.error?.message === 'string' && err.error.message) {
-      return new Error(err.error.message);
-    }
+    if (typeof err.message === 'string' && err.message) return new Error(err.message);
+    if (typeof err.error?.message === 'string' && err.error.message) return new Error(err.error.message);
     return new Error(JSON.stringify(value));
   }
 

@@ -1,0 +1,32 @@
+---
+description: Omit braces on single-statement control flow bodies
+globs: **/*.{ts,mjs,vue}
+alwaysApply: false
+---
+
+# Brace style
+
+Omit curly braces when a control-flow body is a single statement. Prefer putting the statement on the same line as the condition when it fits.
+
+```typescript
+// Good
+if (!token) return false;
+if (!configured) return path.join(projectRoot, 'generated');
+if (err.code === 'EBADCSRFTOKEN') return res.status(403).json({ error: 'Invalid CSRF token' });
+
+// Bad — unnecessary braces
+if (!token) {
+  return false;
+}
+```
+
+Keep braces when the body has multiple statements or spans multiple lines:
+
+```typescript
+if (!secret) {
+  secret = tokens.secretSync();
+  writeSecret(req, res, secret);
+}
+```
+
+Applies to `if`, `else`, `for`, `while`, and `do`.

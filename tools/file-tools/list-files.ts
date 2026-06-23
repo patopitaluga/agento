@@ -27,9 +27,7 @@ export function formatFileListResult(directoryPath: string, fileNames: string[])
   const count = fileNames.length;
   const header = `${count} file${count === 1 ? '' : 's'} in ${directoryPath}:`;
 
-  if (fileNames.length === 0) {
-    return header;
-  }
+  if (fileNames.length === 0) return header;
 
   return `${header}\n${fileNames.join('\n')}`;
 }

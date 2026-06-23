@@ -24,9 +24,7 @@ export function formatWorkspacePath(workspaceDir: string, target: string): strin
   const workspaceLabel = path.basename(workspaceDir);
   const prefix = `${workspaceLabel}/`;
 
-  if (target === workspaceLabel || target.startsWith(prefix)) {
-    return target;
-  }
+  if (target === workspaceLabel || target.startsWith(prefix)) return target;
 
   return `${prefix}${target}`;
 }
@@ -50,9 +48,7 @@ export function createWorkspaceContext(workspaceDir: string): WorkspaceContext {
     const normalized = normalizeToolPath(filePath, workspaceBasename);
     const fullPath = path.resolve(workspaceDir, normalized);
 
-    if (!fullPath.startsWith(workspaceDir + path.sep) && fullPath !== workspaceDir) {
-      return null;
-    }
+    if (!fullPath.startsWith(workspaceDir + path.sep) && fullPath !== workspaceDir) return null;
 
     return fullPath;
   }
@@ -64,17 +60,13 @@ export function createWorkspaceContext(workspaceDir: string): WorkspaceContext {
     const baseName = path.basename(normalized);
     const fullDirectory = path.resolve(workspaceDir, directory === '.' ? '' : directory);
 
-    if (!fullDirectory.startsWith(workspaceDir) || !existsSync(fullDirectory)) {
-      return null;
-    }
+    if (!fullDirectory.startsWith(workspaceDir) || !existsSync(fullDirectory)) return null;
 
     const match = readdirSync(fullDirectory).find(
       (entry) => entry.toLowerCase() === baseName.toLowerCase(),
     );
 
-    if (!match) {
-      return null;
-    }
+    if (!match) return null;
 
     return directory === '.' ? match : path.join(directory, match);
   }
@@ -85,17 +77,13 @@ export function createWorkspaceContext(workspaceDir: string): WorkspaceContext {
    */
   function renameWorkspaceFile(fromPath: string, toPath: string): string {
     const fromRelative = findActualRelativePath(fromPath);
-    if (!fromRelative) {
-      return `Error: source file not found: ${fromPath}`;
-    }
+    if (!fromRelative) return `Error: source file not found: ${fromPath}`;
 
     const toNormalized = normalizeToolPath(toPath, workspaceBasename);
     const toFull = resolveWorkspacePath(toNormalized);
     const fromFull = resolveWorkspacePath(fromRelative);
 
-    if (!toFull || !fromFull) {
-      return 'Error: invalid file path';
-    }
+    if (!toFull || !fromFull) return 'Error: invalid file path';
 
     const fromBaseName = path.basename(fromRelative);
     const toBaseName = path.basename(toNormalized);
@@ -114,9 +102,7 @@ export function createWorkspaceContext(workspaceDir: string): WorkspaceContext {
       return `Renamed ${fromRelative} to ${finalRelative}`;
     }
 
-    if (existsSync(toFull) && fromFull !== toFull) {
-      return `Error: destination already exists: ${toNormalized}`;
-    }
+    if (existsSync(toFull) && fromFull !== toFull) return `Error: destination already exists: ${toNormalized}`;
 
     mkdirSync(path.dirname(toFull), { recursive: true });
     renameSync(fromFull, toFull);

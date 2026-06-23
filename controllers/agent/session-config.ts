@@ -21,9 +21,7 @@ export function createSessionConfig() {
     language: 'es',
   };
 
-  if (transcriptionPrompt) {
-    transcription.prompt = transcriptionPrompt;
-  }
+  if (transcriptionPrompt) transcription.prompt = transcriptionPrompt;
 
   return {
     transport: 'websocket' as const,

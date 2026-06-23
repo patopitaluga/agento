@@ -16,11 +16,10 @@ describe('getToolProfile', () => {
   });
 
   afterEach(() => {
-    if (original === undefined) {
-      delete process.env.TOOL_PROFILE;
-    } else {
+    if (original === undefined) delete process.env.TOOL_PROFILE;
+     else 
       process.env.TOOL_PROFILE = original;
-    }
+    
   });
 
   it('defaults to full', () => {
@@ -41,11 +40,10 @@ describe('getDisabledTools', () => {
   });
 
   afterEach(() => {
-    if (original === undefined) {
-      delete process.env.DISABLED_TOOLS;
-    } else {
+    if (original === undefined) delete process.env.DISABLED_TOOLS;
+     else 
       process.env.DISABLED_TOOLS = original;
-    }
+    
   });
 
   it('returns an empty set by default', () => {

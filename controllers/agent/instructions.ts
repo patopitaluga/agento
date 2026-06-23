@@ -14,46 +14,28 @@ function buildFileToolGuidance(available: Set<string>): string[] {
   const canWrite = available.has('write_file') || available.has('append_file');
   const canMutate = canWrite || available.has('rename_file') || available.has('delete_file');
 
-  if (available.has('write_file')) {
-    lines.push('When the user asks to create a file, use write_file with the exact filename casing they requested.');
-  }
+  if (available.has('write_file')) lines.push('When the user asks to create a file, use write_file with the exact filename casing they requested.');
 
-  if (available.has('read_file') && canWrite) {
-    lines.push('When the user asks to change or update a file, read it first with read_file if needed, then use write_file with the full updated content.');
-  }
+  if (available.has('read_file') && canWrite) lines.push('When the user asks to change or update a file, read it first with read_file if needed, then use write_file with the full updated content.');
 
-  if (available.has('write_file') && available.has('append_file')) {
-    lines.push('For file content longer than 32000 characters, write the first chunk with write_file, then use append_file for each remaining chunk.');
-  }
+  if (available.has('write_file') && available.has('append_file')) lines.push('For file content longer than 32000 characters, write the first chunk with write_file, then use append_file for each remaining chunk.');
 
-  if (available.has('rename_file')) {
-    lines.push('When the user asks to rename or move a file, use rename_file.');
-  }
+  if (available.has('rename_file')) lines.push('When the user asks to rename or move a file, use rename_file.');
 
-  if (available.has('delete_file')) {
-    lines.push('When the user asks to delete a file, use delete_file.');
-  }
+  if (available.has('delete_file')) lines.push('When the user asks to delete a file, use delete_file.');
 
-  if (available.has('list_files')) {
-    lines.push('When the user asks about files in a folder—how many, which names, or whether one exists—use list_files with the directory path (use "." for the workspace root).');
-  }
+  if (available.has('list_files')) lines.push('When the user asks about files in a folder—how many, which names, or whether one exists—use list_files with the directory path (use "." for the workspace root).');
 
-  if (canWrite) {
-    lines.push('When the user shares an image—often a handwritten sketch or diagram—read it carefully and create or update files to match what it describes, unless they ask for something else.');
-  }
+  if (canWrite) lines.push('When the user shares an image—often a handwritten sketch or diagram—read it carefully and create or update files to match what it describes, unless they ask for something else.');
 
   if (canMutate) {
     lines.push('Always perform the requested file operations before replying.');
     lines.push('Confirm what you changed briefly after completing the work.');
   }
 
-  if (available.has('read_file') && !canMutate && !available.has('list_files')) {
-    lines.push('You can read files only. If the user asks to create, modify, rename, or delete files, explain that those tools are not available.');
-  }
+  if (available.has('read_file') && !canMutate && !available.has('list_files')) lines.push('You can read files only. If the user asks to create, modify, rename, or delete files, explain that those tools are not available.');
 
-  if (available.has('read_file') && !canMutate && available.has('list_files')) {
-    lines.push('You can read and inspect files only. Use list_files to see which files are in a directory. If the user asks to create, modify, rename, or delete files, explain that those tools are not available.');
-  }
+  if (available.has('read_file') && !canMutate && available.has('list_files')) lines.push('You can read and inspect files only. Use list_files to see which files are in a directory. If the user asks to create, modify, rename, or delete files, explain that those tools are not available.');
 
   return lines;
 }
@@ -76,9 +58,7 @@ export function buildAgentInstructions(tools: unknown[]): string {
   let instructions = INTRO;
 
   const fileGuidance = buildFileToolGuidance(available);
-  if (fileGuidance.length > 0) {
-    instructions += `\n\n${fileGuidance.join('\n')}`;
-  }
+  if (fileGuidance.length > 0) instructions += `\n\n${fileGuidance.join('\n')}`;
 
   instructions += `\n\n${SHARED_GUIDANCE.join('\n')}`;
   instructions += `\n\n${buildAvailableToolsSection(toolNames)}`;
@@ -86,13 +66,9 @@ export function buildAgentInstructions(tools: unknown[]): string {
   const dictionary = loadDictionary();
   const context = loadAgentContext();
 
-  if (dictionary) {
-    instructions += `\n\n## Speech dictionary\nUse these spellings and disambiguations when interpreting voice input:\n${dictionary}`;
-  }
+  if (dictionary) instructions += `\n\n## Speech dictionary\nUse these spellings and disambiguations when interpreting voice input:\n${dictionary}`;
 
-  if (context) {
-    instructions += `\n\n## User and project context\n${context}`;
-  }
+  if (context) instructions += `\n\n## User and project context\n${context}`;
 
   return instructions;
 }

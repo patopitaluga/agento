@@ -15,9 +15,7 @@ const READONLY_BUILTIN_TOOLS = new Set<BuiltinFileToolName>(['read_file', 'list_
 export function getToolProfile(): ToolProfile {
   const value = process.env.TOOL_PROFILE?.trim().toLowerCase();
 
-  if (value === 'readonly') {
-    return 'readonly';
-  }
+  if (value === 'readonly') return 'readonly';
 
   return 'full';
 }
@@ -25,9 +23,7 @@ export function getToolProfile(): ToolProfile {
 export function getDisabledTools(): Set<string> {
   const raw = process.env.DISABLED_TOOLS?.trim();
 
-  if (!raw) {
-    return new Set();
-  }
+  if (!raw) return new Set();
 
   return new Set(raw.split(',').map((name) => name.trim()).filter(Boolean));
 }
@@ -41,17 +37,11 @@ export function isBuiltinToolAllowed(
   profile: ToolProfile,
   disabled: Set<string>,
 ): boolean {
-  if (disabled.has(name)) {
-    return false;
-  }
+  if (disabled.has(name)) return false;
 
-  if (!isBuiltinFileTool(name)) {
-    return true;
-  }
+  if (!isBuiltinFileTool(name)) return true;
 
-  if (profile === 'readonly') {
-    return READONLY_BUILTIN_TOOLS.has(name);
-  }
+  if (profile === 'readonly') return READONLY_BUILTIN_TOOLS.has(name);
 
   return true;
 }
@@ -60,9 +50,7 @@ export function getToolName(tool: unknown): string | undefined {
   if (typeof tool === 'object' && tool !== null && 'name' in tool) {
     const { name } = tool as { name: unknown };
 
-    if (typeof name === 'string' && name.trim()) {
-      return name;
-    }
+    if (typeof name === 'string' && name.trim()) return name;
   }
 
   return undefined;

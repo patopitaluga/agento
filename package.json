@@ -6,7 +6,9 @@
   "scripts": {
     "start": "electron .",
     "server": "if [ -f .env ]; then node --env-file=.env server.ts; else node server.ts; fi",
-    "test": "node --test test/*.test.ts"
+    "test": "node --test test/*.test.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
@@ -18,8 +20,9 @@
   "type": "module",
   "dependencies": {
     "@openai/agents": "^0.11.8",
+    "cookie": "^0.7.2",
     "cookie-parser": "^1.4.7",
-    "csurf": "^1.11.0",
+    "csrf": "^3.1.0",
     "express": "^5.2.1",
     "multer": "^2.1.1",
     "ws": "^8.21.0",
@@ -28,11 +31,12 @@
   "devDependencies": {
     "@types/cookie": "^0.6.0",
     "@types/cookie-parser": "^1.4.10",
-    "@types/csurf": "^1.11.5",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.1.0",
     "@types/node": "^25.9.2",
     "@types/ws": "^8.18.1",
-    "electron": "^35.1.2"
+    "@typescript-eslint/parser": "^8.62.0",
+    "electron": "^42.4.1",
+    "eslint": "^9.39.2"
   }
 }

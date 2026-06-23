@@ -6,9 +6,7 @@ export const projectRoot = path.dirname(path.dirname(fileURLToPath(import.meta.u
 export function resolveWorkspaceDir(): string {
   const configured = process.env.WORKSPACE_DIR?.trim();
 
-  if (!configured) {
-    return path.join(projectRoot, 'generated');
-  }
+  if (!configured) return path.join(projectRoot, 'generated');
 
   return path.isAbsolute(configured)
     ? path.resolve(configured)

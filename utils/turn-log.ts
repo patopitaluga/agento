@@ -1,7 +1,5 @@
 function formatDetails(details?: Record<string, unknown>): string {
-  if (!details || Object.keys(details).length === 0) {
-    return '';
-  }
+  if (!details || Object.keys(details).length === 0) return '';
 
   return ` ${JSON.stringify(details)}`;
 }
@@ -35,9 +33,7 @@ export function logTurnError(message: string, error: unknown, details?: Record<s
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorStack = error instanceof Error ? error.stack : undefined;
   console.error(`[agento:turn] ${message}${formatDetails({ ...details, error: errorMessage })}`);
-  if (errorStack) {
-    console.error(errorStack);
-  }
+  if (errorStack) console.error(errorStack);
 }
 
 export function logToolStart(

@@ -8,9 +8,7 @@ const DEFAULT_PLUGINS_DIR = 'plugins';
 export function resolvePluginsDir(): string {
   const configured = process.env.PLUGINS_DIR?.trim();
 
-  if (!configured) {
-    return path.join(projectRoot, DEFAULT_PLUGINS_DIR);
-  }
+  if (!configured) return path.join(projectRoot, DEFAULT_PLUGINS_DIR);
 
   return path.isAbsolute(configured)
     ? path.resolve(configured)
@@ -18,9 +16,7 @@ export function resolvePluginsDir(): string {
 }
 
 export async function loadPluginTools(pluginsDir: string): Promise<unknown[]> {
-  if (!existsSync(pluginsDir)) {
-    return [];
-  }
+  if (!existsSync(pluginsDir)) return [];
 
   const entries = readdirSync(pluginsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'));

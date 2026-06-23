@@ -10,11 +10,10 @@ describe('isSpeechPreviewEnabled', () => {
   });
 
   afterEach(() => {
-    if (original === undefined) {
-      delete process.env.SPEECH_PREVIEW;
-    } else {
+    if (original === undefined) delete process.env.SPEECH_PREVIEW;
+     else 
       process.env.SPEECH_PREVIEW = original;
-    }
+    
   });
 
   it('is enabled by default', () => {

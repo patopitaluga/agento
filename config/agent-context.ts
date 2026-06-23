@@ -33,9 +33,7 @@ const DEFAULT_CONTEXT_FILE = 'agent-context.md';
 export function resolveAgentContextPath(): string {
   const configured = process.env.AGENT_CONTEXT_PATH?.trim();
 
-  if (!configured) {
-    return path.join(projectRoot, DEFAULT_CONTEXT_FILE);
-  }
+  if (!configured) return path.join(projectRoot, DEFAULT_CONTEXT_FILE);
 
   return path.isAbsolute(configured)
     ? path.resolve(configured)
@@ -52,9 +50,7 @@ export function resolveAgentContextPath(): string {
 export function loadAgentContext(): string {
   const contextPath = resolveAgentContextPath();
 
-  if (!existsSync(contextPath)) {
-    return '';
-  }
+  if (!existsSync(contextPath)) return '';
 
   return readFileSync(contextPath, 'utf8').trim();
 }
