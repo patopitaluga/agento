@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
 
 const props = defineProps({
   disabled: Boolean,
@@ -13,6 +13,7 @@ const MIN_CAPTURE_MS = 100;
 const PCM_BYTES_PER_SAMPLE = 2;
 
 let spacebarHeld = false;
+let pointerHeld = false;
 let capturedPcmBytes = 0;
 
 const resampleToPcm16 = (float32Samples, sourceSampleRate) => {
@@ -98,6 +99,34 @@ const isTypingTarget = (target) => {
   return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable;
 };
 
+const onPointerDown = (event) => {
+  if (props.disabled || pointerHeld || props.isRecording) return;
+
+  pointerHeld = true;
+  event.currentTarget.setPointerCapture(event.pointerId);
+  emit('start-recording');
+};
+
+const onPointerUp = (event) => {
+  if (!pointerHeld) return;
+
+  pointerHeld = false;
+  if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+  emit('stop-recording');
+};
+
+const onPointerCancel = (event) => {
+  if (!pointerHeld) return;
+
+  pointerHeld = false;
+  if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+  emit('stop-recording');
+};
+
 const onKeyDown = (event) => {
   if (event.code !== 'Space' || event.repeat || props.disabled || isTypingTarget(event.target) || spacebarHeld || props.isRecording) return;
 
@@ -127,6 +156,10 @@ onMounted(() => {
   window.addEventListener('blur', onWindowBlur);
 });
 
+watch(() => props.isRecording, (recording) => {
+  if (!recording) pointerHeld = false;
+});
+
 onUnmounted(() => {
   window.removeEventListener('keydown', onKeyDown);
   window.removeEventListener('keyup', onKeyUp);
@@ -142,10 +175,11 @@ defineExpose({ startCapture, stopCapture, hasEnoughAudio, getCapturedAudioMs });
     <button
       type="button"
       class="micButton"
-      :class="{ isRecording: isRecording, isDisabled: disabled }"
-      :disabled="disabled"
-      @mousedown.prevent="$emit('start-recording')"
-      @touchstart.prevent="$emit('start-recording')"
+      :class="{ isRecording: isRecording, isDisabled: disabled && !isRecording }"
+      :disabled="disabled && !isRecording"
+      @pointerdown.prevent="onPointerDown"
+      @pointerup.prevent="onPointerUp"
+      @pointercancel="onPointerCancel"
     >
       <svg width="36" height="36" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path

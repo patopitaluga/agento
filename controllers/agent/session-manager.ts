@@ -98,6 +98,7 @@ export class TurnSessionManager {
     let audioCommitSent = false;
     let transcriptionFinalized = false;
     let responseCreateSent = false;
+    let maybeCreateResponse: () => void = () => {};
 
     logTurn('started', {
       hasAudio: metadata.hasAudio ?? false,
@@ -137,7 +138,7 @@ export class TurnSessionManager {
         resolve({ userPrompt: '', actions: [], response: '' });
       };
 
-      const maybeCreateResponse = () => {
+      const maybeCreateResponseImpl = () => {
         if (responseCreateSent || !audioCommitSent || !metadata.hasAudio || !transcriptionFinalized) return;
 
         if (isEmptyOrDictionaryHallucination(transcript)) {
@@ -151,6 +152,8 @@ export class TurnSessionManager {
           response: { output_modalities: ['text'] },
         });
       };
+
+      maybeCreateResponse = maybeCreateResponseImpl;
 
       const finish = (error?: Error) => {
         if (settled) return;
@@ -220,7 +223,7 @@ export class TurnSessionManager {
           transcript = event.transcript ?? '';
           transcriptionFinalized = true;
           if (event.transcript) onStream?.({ type: 'transcript.completed', transcript: event.transcript });
-          maybeCreateResponse();
+          maybeCreateResponseImpl();
         }
 
         if (event.type === 'response.output_text.delta' && event.delta) {

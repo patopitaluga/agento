@@ -356,6 +356,13 @@ const isInputDisabled = computed(() => (
   || voiceTurnState.value !== 'idle'
 ));
 
+const micDisabled = computed(() => (
+  isLoading.value
+  || isPreparingImage.value
+  || isCameraOpen.value
+  || (voiceTurnState.value !== 'idle' && !isRecording.value)
+));
+
 const openCamera = () => {
   cameraRef.value?.open();
 };
@@ -390,7 +397,7 @@ const onPreparingImage = (preparing) => {
 };
 
 const startRecording = () => {
-  if (isInputDisabled.value || isRecording.value) return;
+  if (micDisabled.value || isRecording.value) return;
 
   voiceStopRequested = false;
   voiceTurnState.value = 'starting';
@@ -490,7 +497,7 @@ onUnmounted(() => {
 
     <Mic
       ref="micRef"
-      :disabled="isInputDisabled"
+      :disabled="micDisabled"
       :is-recording="isRecording"
       @start-recording="startRecording"
       @stop-recording="stopRecording"
