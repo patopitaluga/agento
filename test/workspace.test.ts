@@ -27,14 +27,14 @@ describe('formatWorkspacePath', () => {
 
 describe('createWorkspaceContext', () => {
   it('rejects absolute paths outside the workspace', () => {
-    const workspaceDir = mkdtempSync(path.join(tmpdir(), 'agento-workspace-'));
+    const workspaceDir = mkdtempSync(path.join(tmpdir(), 'pacheco-workspace-'));
     const workspace = createWorkspaceContext(workspaceDir);
 
     assert.equal(workspace.resolveWorkspacePath('/etc/passwd'), null);
   });
 
   it('finds files case-insensitively on case-insensitive filesystems', () => {
-    const workspaceDir = mkdtempSync(path.join(tmpdir(), 'agento-workspace-'));
+    const workspaceDir = mkdtempSync(path.join(tmpdir(), 'pacheco-workspace-'));
     writeFileSync(path.join(workspaceDir, 'README.md'), '# Hello', 'utf8');
 
     const workspace = createWorkspaceContext(workspaceDir);

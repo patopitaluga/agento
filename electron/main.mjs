@@ -45,7 +45,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
-    title: 'Agento',
+    title: 'Pacheco',
     useContentSize: true,
     resizable: false,
     maximizable: false,

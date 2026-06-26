@@ -10,7 +10,7 @@ import {
 
 describe('listFilesInDirectory', () => {
   it('lists visible and hidden files, not subdirectories', () => {
-    const dir = mkdtempSync(path.join(tmpdir(), 'agento-list-'));
+    const dir = mkdtempSync(path.join(tmpdir(), 'pacheco-list-'));
     writeFileSync(path.join(dir, 'b.txt'), 'b');
     writeFileSync(path.join(dir, 'a.txt'), 'a');
     writeFileSync(path.join(dir, '.hidden'), 'hidden');
@@ -21,7 +21,7 @@ describe('listFilesInDirectory', () => {
   });
 
   it('returns an empty array for an empty directory', () => {
-    const dir = mkdtempSync(path.join(tmpdir(), 'agento-list-empty-'));
+    const dir = mkdtempSync(path.join(tmpdir(), 'pacheco-list-empty-'));
     assert.deepEqual(listFilesInDirectory(dir), []);
   });
 });

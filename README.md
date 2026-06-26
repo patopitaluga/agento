@@ -1,4 +1,4 @@
-# Agento
+# Pacheco
 
 Hands-free agent. Speak or type to an agent that actually does the work — documentation, planning, recipes, file operations — or snap a handwritten diagram and let it build the files. Customize its workspace and context to fit whatever you're working on.
 
@@ -113,7 +113,7 @@ Optional: set `PLUGINS_DIR` in `.env` to use a different folder.
 npm start
 ```
 
-Electron starts the Express server in the background and opens the Agento window.
+Electron starts the Express server in the background and opens the Pacheco window.
 
 ### Web server only
 
@@ -155,7 +155,7 @@ Built-in file tools operate on `WORKSPACE_DIR`. Use `TOOL_PROFILE=readonly` or `
 ## Project structure
 
 ```
-agento/
+pacheco/
 ├── components/          # Vue UI (Mic.vue)
 ├── config/              # Workspace, agent context, dictionary loading
 ├── controllers/
@@ -191,7 +191,7 @@ agento/
 
 ## Security
 
-Agento is a **local development tool**. It runs a server on your machine, stores your OpenAI API key in `.env`, and gives the agent read/write access to `WORKSPACE_DIR`.
+Pacheco is a **local development tool**. It runs a server on your machine, stores your OpenAI API key in `.env`, and gives the agent read/write access to `WORKSPACE_DIR`.
 
 Plugins in `plugins/` are local TypeScript modules loaded at startup. Only install plugins you trust—they run with the same privileges as the server.
 

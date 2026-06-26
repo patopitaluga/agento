@@ -12,7 +12,7 @@ describe('buildTranscriptionPrompt', () => {
   });
 
   it('returns the full dictionary when it fits the prompt limit', () => {
-    const dictionary = 'MCP, Agento, README.md';
+    const dictionary = 'MCP, Pacheco, README.md';
     assert.equal(buildTranscriptionPrompt(dictionary), dictionary);
   });
 
@@ -29,7 +29,7 @@ describe('buildTranscriptionPrompt', () => {
 describe('isEmptyOrDictionaryHallucination', () => {
   const dictionary = [
     'MCP — Model Context Protocol (not MSP)',
-    'Agento — this project name',
+    'Pacheco — this project name',
     'README.md — project readme file',
   ].join('\n');
 

@@ -26,13 +26,13 @@ function summarizeToolArgs(toolName: string, args: Record<string, unknown>): Rec
 }
 
 export function logTurn(message: string, details?: Record<string, unknown>) {
-  console.log(`[agento:turn] ${message}${formatDetails(details)}`);
+  console.log(`[pacheco:turn] ${message}${formatDetails(details)}`);
 }
 
 export function logTurnError(message: string, error: unknown, details?: Record<string, unknown>) {
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorStack = error instanceof Error ? error.stack : undefined;
-  console.error(`[agento:turn] ${message}${formatDetails({ ...details, error: errorMessage })}`);
+  console.error(`[pacheco:turn] ${message}${formatDetails({ ...details, error: errorMessage })}`);
   if (errorStack) console.error(errorStack);
 }
 
@@ -56,7 +56,7 @@ export function logToolEnd(
   const isError = result.startsWith('Error:');
   const logFn = isError ? console.error.bind(console) : console.log.bind(console);
   logFn(
-    `[agento:turn] tool ${isError ? 'error' : 'end'}: ${toolName}${formatDetails({
+    `[pacheco:turn] tool ${isError ? 'error' : 'end'}: ${toolName}${formatDetails({
       callId,
       ...summarizeToolArgs(toolName, args),
       result: result.length > 200 ? `${result.slice(0, 200)}…` : result,
@@ -66,5 +66,5 @@ export function logToolEnd(
 
 export function logResponseDone(status: string | undefined, details?: Record<string, unknown>) {
   const level = status === 'completed' ? 'log' : 'error';
-  console[level](`[agento:turn] response.done${formatDetails({ status, ...details })}`);
+  console[level](`[pacheco:turn] response.done${formatDetails({ status, ...details })}`);
 }

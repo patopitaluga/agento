@@ -53,6 +53,6 @@ if (isMainModule) {
 
   const port = process.env.PORT || 3001;
   server.listen(port, () => {
-    console.log('Agento server listening on port ' + port);
+    console.log('Pacheco server listening on port ' + port);
   });
 }

@@ -91,7 +91,7 @@ export function createWorkspaceContext(workspaceDir: string): WorkspaceContext {
       fromBaseName.toLowerCase() === toBaseName.toLowerCase() && fromBaseName !== toBaseName;
 
     if (caseOnlyRename) {
-      const tempName = `.agento-rename-${Date.now()}${path.extname(fromBaseName)}`;
+      const tempName = `.pacheco-rename-${Date.now()}${path.extname(fromBaseName)}`;
       const tempFull = path.join(path.dirname(fromFull), tempName);
       const finalFull = path.join(path.dirname(fromFull), toBaseName);
 
